@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quality Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Quality Rating Predictor</h1>
+        <form method="POST">
+            <label for="sentence">Enter a sentence:</label>
+            <input type="text" id="sentence" name="sentence" placeholder="Type here..." required>
+            <button type="submit">Predict</button>
+        </form>
+        {% if prediction %}
+            <div class="result">
+                <h3>Predicted Quality Rating: {{ prediction }}</h3>
+            </div>
+        {% elif error %}
+            <div class="error">
+                <h3>{{ error }}</h3>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
