@@ -100,15 +100,24 @@ def predict_extension():
             return jsonify({"error": "Invalid data format"}), 400
 
         processed_comments = []
-        for text in comments[:10]:  # Limit to 10 comments for speed
-            sequence = tokenizer_q.texts_to_sequences([text])
-            padded_sequence = tf.keras.preprocessing.sequence.pad_sequences(sequence, maxlen=max_length, padding='post')
+        # max_comments = min(len(comments), 100)  # Process up to 100 comments
+        max_comments = len(comments)  # Process up to 100 comments
+        for text in comments[:max_comments]:
+            # Preprocess for quality
+            sequence_q = tokenizer_q.texts_to_sequences([text])
+            padded_sequence_q = tf.keras.preprocessing.sequence.pad_sequences(sequence_q, maxlen=max_length, padding='post')
+            extracted_features_q = feature_extractor_q.predict(padded_sequence_q)
+            prediction_q = lr_model_q.predict(extracted_features_q)
+            quality = int(prediction_q[0] + 1)
 
-            extracted_features = feature_extractor_q.predict(padded_sequence)
-            prediction = lr_model_q.predict(extracted_features)
-            quality = int(prediction[0] + 1)  # Convert NumPy int64 to Python int && Convert 0-indexed to 1-indexed
+            # Preprocess for difficulty
+            sequence_d = tokenizer_d.texts_to_sequences([text])
+            padded_sequence_d = tf.keras.preprocessing.sequence.pad_sequences(sequence_d, maxlen=max_length, padding='post')
+            extracted_features_d = feature_extractor_d.predict(padded_sequence_d)
+            prediction_d = lr_model_d.predict(extracted_features_d)
+            difficulty = int(prediction_d[0] + 1)
 
-            processed_comments.append({"text": text, "quality": quality, "difficulty": quality})
+            processed_comments.append({"text": text, "quality": quality, "difficulty": difficulty})
 
         return jsonify(processed_comments)
 
