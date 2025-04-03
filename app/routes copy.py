@@ -102,24 +102,22 @@ def predict_extension():
         processed_comments = []
         # max_comments = min(len(comments), 100)  # Process up to 100 comments
         max_comments = len(comments)  # Process up to 100 comments
-        for comment in comments[:max_comments]:
-            sentence = comment["text"]
-
+        for text in comments[:max_comments]:
             # Preprocess for quality
-            sequence_q = tokenizer_q.texts_to_sequences([sentence])
+            sequence_q = tokenizer_q.texts_to_sequences([text])
             padded_sequence_q = tf.keras.preprocessing.sequence.pad_sequences(sequence_q, maxlen=max_length, padding='post')
             extracted_features_q = feature_extractor_q.predict(padded_sequence_q)
             prediction_q = lr_model_q.predict(extracted_features_q)
             quality = int(prediction_q[0] + 1)
 
             # Preprocess for difficulty
-            sequence_d = tokenizer_d.texts_to_sequences([sentence])
+            sequence_d = tokenizer_d.texts_to_sequences([text])
             padded_sequence_d = tf.keras.preprocessing.sequence.pad_sequences(sequence_d, maxlen=max_length, padding='post')
             extracted_features_d = feature_extractor_d.predict(padded_sequence_d)
             prediction_d = lr_model_d.predict(extracted_features_d)
             difficulty = int(prediction_d[0] + 1)
 
-            processed_comments.append({"username": comment["username"], "text": sentence,"likes": comment["likes"], "date": comment["date"], "quality": quality, "difficulty": difficulty})
+            processed_comments.append({"text": text, "quality": quality, "difficulty": difficulty})
 
         return jsonify(processed_comments)
 
